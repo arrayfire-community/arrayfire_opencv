@@ -42,7 +42,7 @@ void mat_to_array_(cv::Mat& input, array& output, bool transpose = true) {
     const unsigned w = input.cols;
     const unsigned h = input.rows;
     const unsigned channels = input.channels();
-    if (channels > 3) { throw std::runtime_error(string("mat to array error ")); }
+    if (channels > 3) { throw std::runtime_error(std::string("mat to array error ")); }
     if (channels == 1) {
         // bw
         if (transpose) {
@@ -69,7 +69,7 @@ void mat_to_array_(cv::Mat& input, array& output, bool transpose = true) {
         } else {
             if (channels == 3) {
                 // 3 channels
-                vector<Mat> rgb; split(input, rgb);
+                std::vector<Mat> rgb; split(input, rgb);
                 if (transpose) {
                     output = array(h, w, 3);
                     output(span, span, 0) = array(w, h, rgb[2].ptr<float>(0)).T();
@@ -83,7 +83,7 @@ void mat_to_array_(cv::Mat& input, array& output, bool transpose = true) {
                 }
             } else {
                 // 2 channels
-                vector<Mat> gb; split(input, gb);
+                std::vector<Mat> gb; split(input, gb);
                 if (transpose) {
                     output = array(h, w, 2);
                     output(span, span, 0) = array(w, h, gb[1].ptr<float>(0)).T();
@@ -98,7 +98,7 @@ void mat_to_array_(cv::Mat& input, array& output, bool transpose = true) {
     }
 }
 
-void mat_to_array(const vector<Mat>& input, array& output, bool transpose) {
+void mat_to_array(const std::vector<Mat>& input, array& output, bool transpose) {
     try {
         int d = input[0].dims;
         int h = input[0].rows;
@@ -115,11 +115,11 @@ void mat_to_array(const vector<Mat>& input, array& output, bool transpose) {
                 break;
             case 2: output(span, span, i) = tmp;
                 break;
-            default: throw std::runtime_error(string("Only 1 and 2 dimensions supported"));
+            default: throw std::runtime_error(std::string("Only 1 and 2 dimensions supported"));
             }
         }
     } catch (const af::exception& ex) {
-        throw std::runtime_error(string("mat to array error "));
+        throw std::runtime_error(std::string("mat to array error "));
     }
 }
 
@@ -166,21 +166,25 @@ void array_to_mat(const array& input_, cv::Mat& output, int type, bool transpose
     } else {
         input = input_;
     }
-    output = cv::Mat(input.dims(ndims - 1), input.dims(ndims - 2), CV_MAKETYPE(type, channels));
+    if(ndims == 1) {
+        output = cv::Mat(input.dims(ndims - 1), input.elements(), CV_MAKETYPE(type, channels));
+    } else {
+        output = cv::Mat(input.dims(ndims - 1), input.dims(ndims - 2), CV_MAKETYPE(type, channels));
+    }
     if (type == CV_32F) {
         float* data = output.ptr<float>(0);
         input.host((void*)data);
     } else if (type == CV_32S) {
         int* data = output.ptr<int>(0);
-        input.as(af::s32).host((void*)data);
+        input.as(s32).host((void*)data);
     } else if (type == CV_64F) {
         double* data = output.ptr<double>(0);
-        input.as(af::f64).host((void*)data);
+        input.as(f64).host((void*)data);
     } else if (type == CV_8U) {
         uchar* data = output.ptr<uchar>(0);
-        input.as(af::b8).host((void*)data);
+        input.as(b8).host((void*)data);
     } else {
-        throw std::runtime_error(string("array to mat error "));
+        throw std::runtime_error(std::string("array to mat error "));
     }
 }
 
@@ -203,7 +207,7 @@ std::string get_mat_type(int input) {
                              CV_32F, CV_32FC1, CV_32FC2, CV_32FC3, CV_32FC4,
                              CV_64F, CV_64FC1, CV_64FC2, CV_64FC3, CV_64FC4
                             };
-    string enum_strings[] = {"CV_8U",  "CV_8UC1",  "CV_8UC2",  "CV_8UC3",  "CV_8UC4",
+    std::string enum_strings[] = {"CV_8U",  "CV_8UC1",  "CV_8UC2",  "CV_8UC3",  "CV_8UC4",
                              "CV_8S",  "CV_8SC1",  "CV_8SC2",  "CV_8SC3",  "CV_8SC4",
                              "CV_16U", "CV_16UC1", "CV_16UC2", "CV_16UC3", "CV_16UC4",
                              "CV_16S", "CV_16SC1", "CV_16SC2", "CV_16SC3", "CV_16SC4",
@@ -221,20 +225,9 @@ std::string get_mat_type(int input) {
 // af-cv vis (grayscale only)
 void imshow(const char* name, const array& in_) {
     array in;
-    if (in_.dims(2) == 3) { in = colorspace(in_, af_gray, af_rgb); }
+    if (in_.dims(2) == 3) { in = colorSpace(in_, AF_GRAY, AF_RGB); }
     else if (in.dims(2) == 1) { in = in_; }
-    else { throw std::runtime_error(string("imshow error ")); }
+    else { throw std::runtime_error(std::string("imshow error ")); }
     Mat tmp = array_to_mat(in);
     imshow(name, tmp); waitKey(5);
 }
-
-
-// Mat stats
-void _mtop(const char* exp, Mat X) {
-    _top(exp, mat_to_array(X));
-}
-void _mstats(const char* exp, Mat X) {
-    _stats(exp, mat_to_array(X));
-}
-
-

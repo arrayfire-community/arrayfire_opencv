@@ -36,7 +36,7 @@
 
 #include <stdio.h>
 #include <arrayfire.h>
-#include <af/utils.h>
+#include <af/util.h>
 #include <opencv2/opencv.hpp>
 
 using namespace af;
@@ -45,7 +45,7 @@ using namespace cv;
 
 // conversion for gpu
 void mat_to_array(const cv::Mat& input, af::array& output, bool transpose = true) ;
-void mat_to_array(const vector<Mat>& input, af::array& output, bool transpose = true);
+void mat_to_array(const std::vector<Mat>& input, af::array& output, bool transpose = true);
 af::array mat_to_array(const cv::Mat& input, bool transpose = true) ;
 
 
@@ -61,14 +61,6 @@ std::string get_mat_type(const Mat& input);
 
 // visualize af array in opencv
 void imshow(const char* name, const af::array& in) ;
-
-
-// Mat stats
-#define mtop(exp) _mtop(#exp, exp)
-void _mtop(const char* exp, Mat X);
-#define mstats(exp) _mstats(#exp, exp)
-void _mstats(const char* exp, Mat X);
-
 
 // af zeros
 #define zero(...) af::constant(0,##__VA_ARGS__);
