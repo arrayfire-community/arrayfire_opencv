@@ -39,24 +39,20 @@
 #include <af/util.h>
 #include <opencv2/opencv.hpp>
 
-using namespace af;
-using namespace cv;
-
-
 // conversion for gpu
 void mat_to_array(const cv::Mat& input, af::array& output, bool transpose = true) ;
-void mat_to_array(const std::vector<Mat>& input, af::array& output, bool transpose = true);
+void mat_to_array(const std::vector<cv::Mat>& input, af::array& output, bool transpose = true);
 af::array mat_to_array(const cv::Mat& input, bool transpose = true) ;
 
 
 // conversion for cpu
 void array_to_mat(const af::array& input, cv::Mat& output, int type = CV_32F, bool transpose = true) ;
-Mat array_to_mat(const af::array& input, int type = CV_32F, bool transpose = true) ;
+cv::Mat array_to_mat(const af::array& input, int type = CV_32F, bool transpose = true) ;
 
 
 // get type of a Mat string
 std::string get_mat_type(int input);
-std::string get_mat_type(const Mat& input);
+std::string get_mat_type(const cv::Mat& input);
 
 
 // visualize af array in opencv
